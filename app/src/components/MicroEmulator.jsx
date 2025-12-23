@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import './MicroEmulator.css';
 
 const MicroEmulator = () => {
-    const [status, setStatus] = useState('Loading CheerpJ...');
+    const [status, setStatus] = useState('Booting System...');
+    const [loading, setLoading] = useState(true);
     const initialized = useRef(false);
 
     useEffect(() => {
@@ -19,17 +21,14 @@ const MicroEmulator = () => {
                 originalConsoleError.apply(console, args);
             };
 
-
-
             try {
                 if (!window.cheerpjInit) {
-                    setStatus('CheerpJ not found. Check internet connection.');
+                    setStatus('Connection Error: CheerpJ not found.');
                     return;
                 }
 
-                setStatus('Initializing CheerpJ...');
-                // Initialize CheerpJ with system properties
-                // Using /files/ as home since it definitely exists in the virtual FS
+                setStatus('Initializing Virtual Environment...');
+
                 await window.cheerpjInit({
                     preloadResources: ["/microemulator.jar"],
                     javaProperties: {
@@ -42,29 +41,26 @@ const MicroEmulator = () => {
                     disableErrorReporting: true
                 });
 
+                setStatus('Loading MicroEmulator...');
 
-
-                setStatus('Running MicroEmulator...');
-
-                // Create the display element manually
                 const display = document.getElementById('cheerpjDisplay');
                 if (display) {
-                    // window.cheerpjCreateDisplay(width, height, parentElement)
-                    // MicroEmulator default size is usually small, maybe 800x600 is safe
+                    // Create display with a standard resolution
+                    // The CSS will handle the scaling
                     window.cheerpjCreateDisplay(800, 600, display);
                 }
 
-                // Run the jar. 
                 await window.cheerpjRunJar("/app/microemulator.jar");
 
-                setStatus('MicroEmulator Running');
+                setStatus('System Ready');
+                setLoading(false);
             } catch (error) {
                 console.error("CheerpJ Error:", error);
-                setStatus(`Error: ${error.message}`);
+                setStatus(`System Error: ${error.message}`);
+                setLoading(false);
             }
         };
 
-        // Give the script a moment to load if it hasn't already
         if (window.cheerpjInit) {
             initCheerpJ();
         } else {
@@ -77,20 +73,45 @@ const MicroEmulator = () => {
         }
     }, []);
 
+    const toggleFullscreen = () => {
+        const elem = document.getElementById('cheerpjDisplay');
+        if (!document.fullscreenElement) {
+            elem.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
     return (
-        <div style={{
-            width: '100%',
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#282c34',
-            color: 'white'
-        }}>
-            <h1 style={{ marginBottom: '20px' }}>MicroEmulator Web</h1>
-            <p>{status}</p>
-            <div id="cheerpjDisplay" style={{ width: '800px', height: '600px', background: 'black' }}></div>
+        <div className="app-container">
+            <header className="header glass-panel">
+                <div className="brand">MicroEmu Web</div>
+                <div className="status-badge">{status}</div>
+            </header>
+
+            <main className="main-content">
+                <div className="emulator-wrapper glass-panel">
+                    {loading && (
+                        <div className="loading-overlay">
+                            <div className="spinner"></div>
+                            <p>{status}</p>
+                        </div>
+                    )}
+                    <div id="cheerpjDisplay"></div>
+                </div>
+
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+                    <button onClick={toggleFullscreen} className="btn-primary">
+                        Fullscreen
+                    </button>
+                </div>
+            </main>
+
+            <footer className="footer">
+                <p>Powered by CheerpJ • Running J2ME in Browser</p>
+            </footer>
         </div>
     );
 };
