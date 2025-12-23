@@ -24,7 +24,10 @@ const MicroEmulator = () => {
                         "user.home": "/files/",
                         "user.dir": "/files/",
                         "microemulator.config.dir": "/files/.microemulator"
-                    }
+                    },
+                    disableAnalytics: true,
+                    enableAnalytics: false,
+                    disableErrorReporting: true
                 });
 
 
