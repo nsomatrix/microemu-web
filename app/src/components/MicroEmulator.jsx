@@ -19,7 +19,7 @@ const MicroEmulator = () => {
                 // Initialize CheerpJ with system properties
                 // Using /files/ as home since it definitely exists in the virtual FS
                 await window.cheerpjInit({
-                    preloadResources: ["/app/microemulator.jar"],
+                    preloadResources: ["/microemulator.jar"],
                     javaProperties: {
                         "user.home": "/files/",
                         "user.dir": "/files/",
