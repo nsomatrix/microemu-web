@@ -9,6 +9,18 @@ const MicroEmulator = () => {
         initialized.current = true;
 
         const initCheerpJ = async () => {
+            // Filter out known annoying errors
+            const originalConsoleError = console.error;
+            console.error = (...args) => {
+                const msg = args[0]?.toString() || '';
+                if (msg.includes("SecurityError") && msg.includes("iframe")) return;
+                if (msg.includes("metrics.leaningtech.com")) return;
+                if (msg.includes("net::ERR_CERT_COMMON_NAME_INVALID")) return;
+                originalConsoleError.apply(console, args);
+            };
+
+
+
             try {
                 if (!window.cheerpjInit) {
                     setStatus('CheerpJ not found. Check internet connection.');
