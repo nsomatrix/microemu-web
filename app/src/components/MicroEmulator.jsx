@@ -40,7 +40,7 @@ const MicroEmulator = () => {
                 }
 
                 // Run the jar. 
-                await window.cheerpjRunJar("/app/microemulator.jar", "");
+                await window.cheerpjRunJar("/app/microemulator.jar");
 
                 setStatus('MicroEmulator Running');
             } catch (error) {
